@@ -2,7 +2,7 @@
 // @name         YouTube - Favicon Thumbnail
 // @namespace    https://github.com/LenAnderson
 // @downloadURL  https://github.com/LenAnderson/YouTube-Favicon-Thumbnail/raw/master/YouTube-Favicon-Thumbnail.user.js
-// @version      0.1
+// @version      0.2
 // @description  Replace YouTube favicon with video thumbnail
 // @author       LenAnderson
 // @match        https://www.youtube.com/*
@@ -21,13 +21,25 @@
     const wait = async(millis)=>(new Promise(resolve=>setTimeout(resolve,millis)));
 
 
+	let orig;
 	const updateFavicon = async()=>{
 		try {
 			const idParam = location.search.substring(1).split('&').find(it=>it.substring(0,2)=='v=');
 			if (idParam) {
 				const id = idParam.substring(2);
 				const thumbUrl = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-				Array.from(document.body.parentElement.querySelectorAll('[rel*="icon"]')).forEach(icon=>icon.href = thumbUrl);
+				Array.from(document.body.parentElement.querySelectorAll('[rel*="icon"]')).forEach(icon=>{
+					if (!orig) {
+						orig = icon.href;
+					}
+					icon.href = thumbUrl;
+				});
+			} else {
+				Array.from(document.body.parentElement.querySelectorAll('[rel*="icon"]')).forEach(icon=>{
+					if (orig) {
+						icon.href = orig;
+					}
+				});
 			}
 		} catch (ex) {
 			log(ex);
